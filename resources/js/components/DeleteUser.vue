@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
-// Components
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -19,10 +18,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const passwordInput = ref<HTMLInputElement | null>(null);
+const emailInput = ref<HTMLInputElement | null>(null);
 
 const form = useForm({
-    password: '',
+    email: '',
 });
 
 const deleteUser = (e: Event) => {
@@ -31,7 +30,11 @@ const deleteUser = (e: Event) => {
     form.delete(route('profile.destroy'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
-        onError: () => passwordInput.value?.focus(),
+        onError: () => {
+            nextTick(() => {
+                emailInput.value?.focus();
+            });
+        },
         onFinish: () => form.reset(),
     });
 };
@@ -60,14 +63,14 @@ const closeModal = () => {
                             <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
                             <DialogDescription>
                                 Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your
-                                password to confirm you would like to permanently delete your account.
+                                email to confirm you would like to permanently delete your account.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div class="grid gap-2">
-                            <Label for="password" class="sr-only">Password</Label>
-                            <Input id="password" type="password" name="password" ref="passwordInput" v-model="form.password" placeholder="Password" />
-                            <InputError :message="form.errors.password" />
+                            <Label for="email" class="sr-only">Email</Label>
+                            <Input id="email" type="email" name="email" ref="emailInput" v-model="form.email" placeholder="Email" />
+                            <InputError :message="form.errors.email" />
                         </div>
 
                         <DialogFooter class="gap-2">

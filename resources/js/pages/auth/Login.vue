@@ -1,93 +1,30 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>();
+const processing = ref(false);
 
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-});
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
+const redirectToGoogle = () => {
+    processing.value = true;
+    window.location.href = '/auth/google/redirect';
 };
 </script>
 
 <template>
-    <AuthBase title="Log in to your account" description="Enter your email and password below to log in">
+    <AuthBase title="Log in to your account" description="Please log in to continue.">
         <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
+        <Button :disabled="processing" @click="redirectToGoogle" class="mt-4 w-full google-login">
+            <span class="google-icon" v-if="!processing">
+                <svg width="20" height="20" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.23 9.19 3.25l6.85-6.85C36.09 2.36 30.45 0 24 0 14.61 0 6.36 5.64 2.44 14.02l7.98 6.21C12.18 13.09 17.62 9.5 24 9.5z"/><path fill="#34A853" d="M46.09 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.91-2.18 5.38-4.65 7.04l7.98 6.21C44.36 38.36 46.09 31.89 46.09 24.5z"/><path fill="#FBBC05" d="M10.42 28.23c-.63-1.89-.99-3.89-.99-5.98s.36-4.09.99-5.98l-7.98-6.21C2.16 13.09 0 18.29 0 24c0 5.71 2.16 10.91 5.44 14.02l7.98-6.21z"/><path fill="#EA4335" d="M24 48c6.45 0 12.09-2.36 16.64-6.44l-7.98-6.21c-2.21 1.49-5.04 2.38-8.66 2.38-6.38 0-11.82-3.59-14.58-8.73l-7.98 6.21C6.36 42.36 14.61 48 24 48z"/></g></svg>
+            </span>
+            <span class="ml-2" v-if="!processing">Log in with Google</span>
 
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="email"
-                        v-model="form.email"
-                        placeholder="email@example.com"
-                    />
-                    <InputError :message="form.errors.email" />
-                </div>
+            <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
+        </Button>
 
-                <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
-                            Forgot password?
-                        </TextLink>
-                    </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="form.errors.password" />
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model="form.remember" :tabindex="3" />
-                        <span>Remember me</span>
-                    </Label>
-                </div>
-
-                <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
-                    <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    Log in
-                </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
-            </div>
-        </form>
     </AuthBase>
 </template>
